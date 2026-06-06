@@ -1,0 +1,40 @@
+jenkins:
+  systemMessage: "${system_message}"
+  numExecutors: 0
+  quietPeriod: 5
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  clouds:
+    - kubernetes:
+        name: "kubernetes"
+        serverUrl: "https://kubernetes.default.svc"
+        skipTlsVerify: true
+        namespace: "${varroa_controller_namespace}"
+        jenkinsUrl: "${varroa_controller_endpoint}"
+        webSocket: true
+        containerCapStr: "10"
+        connectTimeout: "30"
+        maxRequestsPerHostStr: "32"
+        templates:
+          - name: "default"
+            namespace: "${varroa_controller_namespace}"
+            label: "agent"
+            containers:
+              - name: "jnlp"
+                image: "jenkins/inbound-agent:latest"
+                alwaysPullImage: true
+                workingDir: "/home/jenkins/agent"
+                ttyEnabled: true
+                resourceRequestCpu: "500m"
+                resourceLimitCpu: "1000m"
+                resourceRequestMemory: "512Mi"
+                resourceLimitMemory: "1Gi"
+            idleMinutes: "5"
+            activeDeadlineSeconds: "600"
+
+tool:
+  jdk:
+    installations:
+      - name: "JDK21"
+        home: "/opt/java/openjdk"

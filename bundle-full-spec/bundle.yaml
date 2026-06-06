@@ -1,0 +1,12 @@
+id: "full-spec-items"
+apiVersion: "2"
+version: "1"
+description: "Full-spec acceptance bundle — groups, folder properties, GitHub SCM, root field"
+jcasc:
+  - "jenkins.yaml"
+plugins:
+  - "plugins.yaml"
+items:
+  - "items.yaml"
+rbac:
+  - "rbac.yaml"

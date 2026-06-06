@@ -1,0 +1,10 @@
+id: "bundle-mc1"
+apiVersion: "2"
+version: "1"
+description: "MC1 bundle from CloudBees CasC reference — freeStyle + pipeline items"
+jcasc:
+  - "jenkins.yaml"
+plugins:
+  - "plugins.yaml"
+items:
+  - "items.yaml"

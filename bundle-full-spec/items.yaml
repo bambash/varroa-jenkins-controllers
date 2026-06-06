@@ -1,0 +1,92 @@
+removeStrategy:
+  items: "none"
+  rbac: "sync"
+
+root: "/teams"
+
+items:
+  # Folder with all four property types + groups + nested pipeline
+  - kind: folder
+    name: project-alpha
+    displayName: "Project Alpha"
+    description: "Full-spec acceptance folder"
+    groups:
+      - name: "Developers"
+        members:
+          users:
+            - "dev-user"
+          external_groups:
+            - "ldap-team-alpha"
+        roles:
+          - name: "developer"
+    filteredRoles:
+      - "developer"
+      - "browser"
+    properties:
+      - envVars:
+          vars:
+            FOO: "BAR"
+            BAR: "BAZ"
+      - itemRestrictions:
+          allowedTypes:
+            - "org.jenkinsci.plugins.workflow.job.WorkflowJob"
+            - "hudson.model.FreeStyleProject"
+            - "com.cloudbees.hudson.plugins.folder.Folder"
+          filter: true
+    items:
+      - kind: pipeline
+        name: hello-world
+        displayName: "Hello World"
+        definition:
+          cpsScmFlowDefinition:
+            scriptPath: "Jenkinsfile"
+            scm:
+              gitSCM:
+                userRemoteConfigs:
+                  - userRemoteConfig:
+                      url: "https://github.com/bambash/varroa-jenkins.git"
+                branches:
+                  - branchSpec:
+                      name: "*/main"
+            lightweight: true
+
+  # Multibranch with GitHub source (official spec format)
+  - kind: multibranch
+    name: github-multibranch
+    displayName: "GitHub Multibranch"
+    sourcesList:
+      - branchSource:
+          source:
+            github:
+              repoOwner: "bambash"
+              repository: "varroa-jenkins"
+              repositoryUrl: "https://github.com/bambash/varroa-jenkins"
+              configuredByUrl: true
+              traits:
+                - gitHubBranchDiscovery:
+                    strategyId: 1
+                - headWildcardFilter:
+                    includes: "*"
+                    excludes: "wip/*"
+          strategy:
+            allBranchesSame: {}
+    projectFactory:
+      workflowBranchProjectFactory:
+        scriptPath: "Jenkinsfile"
+
+  # FreeStyle with groups
+  - kind: freeStyle
+    name: restricted-build
+    displayName: "Restricted Build Job"
+    groups:
+      - name: "Build Masters"
+        members:
+          users:
+            - "build-admin"
+        roles:
+          - name: "build"
+          - name: "read"
+    label: "agent"
+    builders:
+      - shell:
+          command: "echo 'Restricted job running'"

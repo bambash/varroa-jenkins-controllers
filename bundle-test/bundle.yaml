@@ -1,0 +1,12 @@
+id: "bundle-test"
+apiVersion: "2"
+version: "1"
+description: "Test bundle with items for acceptance verification"
+jcasc:
+  - "jenkins.yaml"
+plugins:
+  - "plugins.yaml"
+items:
+  - "items.yaml"
+variables:
+  - "variables.yaml"

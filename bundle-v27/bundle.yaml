@@ -1,0 +1,11 @@
+id: "bundle-v27"
+version: "1"
+apiVersion: "2"
+description: "Varroa v27 bundle — CloudBees-compatible manifest format"
+jcasc:
+  - "jenkins.yaml"
+jcascMergeStrategy: "errorOnConflict"
+plugins:
+  - "plugins.yaml"
+variables:
+  - "variables.yaml"

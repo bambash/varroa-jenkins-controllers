@@ -1,0 +1,15 @@
+plugins:
+  - artifactId: ansicolor
+    version: "1.0.2"
+  - artifactId: mcp-server
+    version: "latest"
+  - artifactId: git
+    version: "latest"
+  - artifactId: workflow-aggregator
+    version: "latest"
+  - artifactId: cloudbees-folder
+    version: "latest"
+  - artifactId: junit
+    version: "latest"
+  - artifactId: matrix-project
+    version: "latest"

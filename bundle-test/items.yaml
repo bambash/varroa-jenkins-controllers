@@ -1,0 +1,81 @@
+removeStrategy:
+  items: "none"
+  rbac: "sync"
+
+items:
+  # ---- Folder at root ----
+  - kind: folder
+    name: acceptance-folder
+    displayName: "Acceptance Folder"
+    items:
+      # ---- Pipeline inside folder ----
+      - kind: pipeline
+        name: hello-pipeline
+        displayName: "Hello Pipeline"
+        definition:
+          cpsScmFlowDefinition:
+            scm:
+              gitSCM:
+                userRemoteConfigs:
+                  - userRemoteConfig:
+                      url: "https://github.com/bambash/varroa-jenkins.git"
+                branches:
+                  - branchSpec:
+                      name: "*/main"
+            scriptPath: "Jenkinsfile"
+            lightweight: true
+
+  # ---- FreeStyle at root, tied to 'agent' label ----
+  - kind: freeStyle
+    name: agent-job
+    displayName: "Agent Label Job"
+    description: "FreeStyle job that runs on the agent label"
+    label: "agent"
+    scm:
+      gitSCM:
+        userRemoteConfigs:
+          - userRemoteConfig:
+              url: "https://github.com/bambash/varroa-jenkins.git"
+        branches:
+          - branchSpec:
+              name: "*/main"
+    builders:
+      - shell:
+          command: |
+            echo "Running on agent label"
+            echo "Workspace: $(pwd)"
+            echo "Node: $(hostname)"
+    buildDiscarder:
+      logRotator:
+        daysToKeep: 7
+        numToKeep: 10
+
+    # ---- Inline pipeline on pod template 'agent' ----
+  - kind: pipeline
+    name: inline-groovy-hello
+    displayName: "Inline Groovy Hello World"
+    description: "Inline pipeline that runs sh echo hello world on pod template agent"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'agent' }
+          stages {
+            stage('Hello') {
+              steps {
+                sh 'echo hello world'
+              }
+            }
+          }
+        }
+
+  # ---- Multibranch at root ----
+  - kind: multibranch
+    name: multibranch-test
+    displayName: "Multibranch Pipeline"
+    description: "Scans a repo for branches and builds them"
+    sourcesList:
+      - git:
+          remote: "https://github.com/bambash/varroa-jenkins.git"
+    projectFactory:
+      multiBranchProjectFactory:
+        scriptPath: "Jenkinsfile"

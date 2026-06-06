@@ -1,0 +1,9 @@
+plugins:
+  - artifactId: "git"
+    version: "latest"
+  - artifactId: "workflow-aggregator"
+    version: "latest"
+  - artifactId: "cloudbees-folder"
+    version: "latest"
+  - artifactId: "configuration-as-code"
+    version: "latest"

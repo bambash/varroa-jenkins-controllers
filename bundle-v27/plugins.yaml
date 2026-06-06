@@ -1,0 +1,7 @@
+plugins:
+  - artifactId: ansicolor
+    version: "1.0.2"
+  - artifactId: mcp-server
+    version: "latest"
+  - artifactId: job-dsl
+    version: "latest"
