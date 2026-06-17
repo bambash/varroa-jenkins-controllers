@@ -13,3 +13,5 @@ plugins:
     version: "latest"
   - artifactId: matrix-project
     version: "latest"
+  - artifactId: build-timeout
+    version: "latest"
