@@ -1,0 +1,10 @@
+id: "comprehensive"
+apiVersion: "2"
+version: "1"
+description: "Comprehensive acceptance bundle: complex nested items + system config. RBAC via CRDs, theme via catalog itemRefs."
+jcasc:
+  - "jenkins.yaml"
+plugins:
+  - "plugins.yaml"
+items:
+  - "items.yaml"

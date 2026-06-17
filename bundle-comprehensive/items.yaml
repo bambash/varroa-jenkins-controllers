@@ -1,0 +1,47 @@
+removeStrategy:
+  items: "none"
+items:
+  - kind: folder
+    name: platform-team
+    displayName: "Platform Team"
+    description: "Top-level team folder — RBAC-scoped to the prod-ready-devs group."
+    buildDiscarder:
+      logRotator:
+        daysToKeep: 14
+        numToKeep: 25
+    items:
+      - kind: pipeline
+        name: ci-inline
+        displayName: "CI (inline)"
+        description: "Multi-stage inline pipeline; runs on the built-in node."
+        buildDiscarder:
+          logRotator:
+            numToKeep: 20
+        definition:
+          script: |
+            pipeline {
+              agent any
+              stages {
+                stage('Build')  { steps { echo 'Building comprehensive acceptance artifact...' } }
+                stage('Test')   { steps { echo 'Running tests...'; sh 'true' } }
+                stage('Deploy') { steps { echo 'Deploying to acceptance...' } }
+              }
+            }
+      - kind: pipeline
+        name: release-gate
+        displayName: "Release Gate"
+        description: "Second inline pipeline to exercise multiple jobs in one folder."
+        definition:
+          script: |
+            node {
+              stage('Verify') { echo 'Release gate verification passed.' }
+            }
+      - kind: folder
+        name: services
+        displayName: "Services"
+        description: "Nested folder demonstrating depth-first item creation."
+        items:
+          - kind: freeStyle
+            name: api-smoke
+            displayName: "API Smoke"
+            description: "Freestyle job inside a nested folder (existence + RBAC scope test)."

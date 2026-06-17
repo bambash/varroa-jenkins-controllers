@@ -1,0 +1,18 @@
+jenkins:
+  # numExecutors > 0 so the inline pipeline/freeStyle items can actually run on
+  # the built-in node during acceptance testing.
+  numExecutors: 1
+  quietPeriod: 0
+  systemMessage: "Varroa comprehensive acceptance controller — complex items + RBAC + theme."
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: "VARROA_ENV"
+            value: "acceptance"
+          - key: "VARROA_BUNDLE"
+            value: "comprehensive"
+
+# NOTE: securityRealm and authorizationStrategy are intentionally omitted —
+# Varroa owns authz (generated from JenkinsRole/JenkinsRoleBinding CRDs and
+# merged at apply time). The Varroa theme's `appearance` block is supplied by
+# the platform-catalog-jcasc-varroa-theme catalog item, so it is not set here.

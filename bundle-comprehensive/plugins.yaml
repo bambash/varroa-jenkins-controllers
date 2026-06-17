@@ -1,0 +1,20 @@
+plugins:
+  # Item kinds used by items.yaml (folders, pipelines, freeStyle, multibranch).
+  - artifactId: "cloudbees-folder"
+    version: "latest"
+  - artifactId: "workflow-aggregator"
+    version: "latest"
+  - artifactId: "workflow-job"
+    version: "latest"
+  - artifactId: "workflow-cps"
+    version: "latest"
+  - artifactId: "pipeline-stage-view"
+    version: "latest"
+  - artifactId: "git"
+    version: "latest"
+  - artifactId: "github-branch-source"
+    version: "latest"
+  # configuration-as-code is part of the operator core baseline, listed here for
+  # clarity since this bundle is JCasC-driven.
+  - artifactId: "configuration-as-code"
+    version: "latest"
