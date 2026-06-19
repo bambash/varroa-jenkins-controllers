@@ -1,0 +1,6 @@
+---
+itemRemoveStrategy:
+    items: none
+jcasc: jenkins.yaml
+plugins: plugins.yaml
+items: items.yaml
