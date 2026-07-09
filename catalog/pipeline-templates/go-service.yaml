@@ -1,0 +1,9 @@
+items:
+  - name: go-service
+    kind: multibranch
+    sourcesList:
+      - branchSource:
+          source:
+            github:
+              repoOwner: bambash
+              repository: varroa-jenkins-controllers

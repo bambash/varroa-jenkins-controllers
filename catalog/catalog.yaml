@@ -1,0 +1,19 @@
+apiVersion: "1"
+name: catalog-rbac-live-check
+items:
+  - type: pipeline-template
+    name: go-service
+    displayName: Go microservice pipeline
+    description: Live-check fixture for pipeline-template catalog items
+    path: pipeline-templates/go-service.yaml
+    variables:
+      - name: environment
+        type: string
+        allowedValues: [dev, staging, prod]
+        default: dev
+      - name: run_integration_tests
+        type: boolean
+        default: "false"
+      - name: deploy_credentials_id
+        type: credentials
+        description: Jenkins credentials ID used to deploy
