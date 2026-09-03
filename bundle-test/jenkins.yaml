@@ -7,7 +7,6 @@ jenkins:
       allowAnonymousRead: false
   clouds:
     - kubernetes:
-        name: "kubernetes"
         serverUrl: "https://kubernetes.default.svc"
         skipTlsVerify: true
         namespace: "${varroa_controller_namespace}"
