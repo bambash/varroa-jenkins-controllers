@@ -1,0 +1,10 @@
+apiVersion: "1"
+name: smoke-template-catalog
+description: "Throwaway catalog for the jenkins-cells epic live smoke."
+items:
+  - type: pipeline-template
+    name: go-service
+    displayName: "Go service (smoke)"
+    path: items/go-service.yaml
+    version: "2.1.3"
+    tags: [smoke]
