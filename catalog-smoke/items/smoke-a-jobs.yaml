@@ -1,0 +1,19 @@
+items:
+  - kind: pipeline
+    name: agent-probe
+    displayName: "Agent probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret of length ${#S}' } } } } }
+  - kind: pipeline
+    name: rehydrate-1
+    displayName: "Rehydrate probe"
+    parameters:
+      - string:
+          name: ENV
+          defaultValue: staging
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages { stage('Run') { steps { echo "env=${params.ENV}" } } } }
