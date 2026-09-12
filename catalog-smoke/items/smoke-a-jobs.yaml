@@ -5,7 +5,7 @@ items:
     definition:
       script: |
         pipeline { agent { label 'smoke-a-default' }
-          stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret of length ${#S}' } } } } }
+          stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret; printenv S | wc -c' } } } } }
   - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
@@ -16,4 +16,4 @@ items:
     definition:
       script: |
         pipeline { agent { label 'smoke-a-default' }
-          stages { stage('Run') { steps { echo "env=${params.ENV}" } } } }
+          stages { stage('Run') { steps { echo "env=" + params.ENV } } } }
