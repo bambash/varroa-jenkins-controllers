@@ -305,3 +305,39 @@ items:
           triggers { upstream(upstreamProjects: 'up-e', threshold: hudson.model.Result.SUCCESS) }
           stages { stage('f') { steps { echo 'up-f-done' } } }
         }
+  - kind: pipeline
+    name: fwd-wait-a
+    displayName: "C5 refusal a: waiting build of release"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'release', wait: true
+          echo 'fwd-wait-a-done'
+        }
+  - kind: pipeline
+    name: fwd-wait-b
+    displayName: "C5 refusal b: waiting build of rehydrate-1"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'rehydrate-1', wait: true
+          echo 'fwd-wait-b-done'
+        }
+  - kind: pipeline
+    name: fwd-wait-c
+    displayName: "C5 refusal c: waiting build of release"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'release', wait: true
+          echo 'fwd-wait-c-done'
+        }
+  - kind: pipeline
+    name: fwd-wait-d
+    displayName: "C5 refusal d: waiting build of rehydrate-1"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'rehydrate-1', wait: true
+          echo 'fwd-wait-d-done'
+        }
