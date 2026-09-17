@@ -195,13 +195,13 @@ items:
     definition:
       script: |
         for (int i = 1; i <= 24; i++) {
-          stage("s${i}") {
-            echo "stage ${i} start"
+          stage('s' + i) {
+            echo 'stage ' + i + ' start'
             sleep 30
-            echo "stage ${i} end"
+            echo 'stage ' + i + ' end'
           }
         }
-        echo "flow-done"
+        echo 'flow-done'
   - kind: pipeline
     name: mesh-agent
     displayName: "Mesh probe: pod agent"
@@ -210,7 +210,12 @@ items:
         stage('prep') { echo 'prep'; sleep 5 }
         node('smoke-a-default') {
           stage('work') {
-            sh 'hostname; for i in $(seq 1 120); do echo tick $i; sleep 5; done; echo done-on-agent'
+            sh 'hostname'
+            for (int i = 1; i <= 20; i++) {
+              sh 'sleep 30'
+              echo 'tick ' + i
+            }
+            sh 'echo done-on-agent'
           }
         }
         stage('after') { echo 'after-node' }
@@ -221,6 +226,6 @@ items:
       script: |
         properties([durabilityHint('PERFORMANCE_OPTIMIZED')])
         for (int i = 1; i <= 24; i++) {
-          stage("p${i}") { sleep 30 }
+          stage('p' + i) { sleep 30 }
         }
-        echo "perf-done"
+        echo 'perf-done'
