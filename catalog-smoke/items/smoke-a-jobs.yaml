@@ -189,3 +189,38 @@ items:
                 stage('Rotate') { steps { sh 'echo rotate; sleep 3' } }
               }
             }
+  - kind: pipeline
+    name: mesh-flow
+    displayName: "Mesh probe: flow only"
+    definition:
+      script: |
+        for (int i = 1; i <= 24; i++) {
+          stage("s${i}") {
+            echo "stage ${i} start"
+            sleep 30
+            echo "stage ${i} end"
+          }
+        }
+        echo "flow-done"
+  - kind: pipeline
+    name: mesh-agent
+    displayName: "Mesh probe: pod agent"
+    definition:
+      script: |
+        stage('prep') { echo 'prep'; sleep 5 }
+        node('smoke-a-default') {
+          stage('work') {
+            sh 'hostname; for i in $(seq 1 120); do echo tick $i; sleep 5; done; echo done-on-agent'
+          }
+        }
+        stage('after') { echo 'after-node' }
+  - kind: pipeline
+    name: mesh-perf
+    displayName: "Mesh probe: durability override"
+    definition:
+      script: |
+        properties([durabilityHint('PERFORMANCE_OPTIMIZED')])
+        for (int i = 1; i <= 24; i++) {
+          stage("p${i}") { sleep 30 }
+        }
+        echo "perf-done"
