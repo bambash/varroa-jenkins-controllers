@@ -1,0 +1,231 @@
+items:
+  - kind: pipeline
+    name: agent-probe
+    displayName: "Agent probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-b-default' }
+          stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret; printenv S | wc -c' } } } } }
+  - kind: pipeline
+    name: rehydrate-1
+    displayName: "Rehydrate probe"
+    parameters:
+      - string:
+          name: ENV
+          defaultValue: staging
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-b-default' }
+          stages { stage('Run') { steps { echo "env=" + params.ENV } } } }
+  - kind: pipeline
+    name: release
+    displayName: "Release"
+    parameters:
+      - string:
+          name: VERSION
+          defaultValue: "1.4.0"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'smoke-b-default' }
+          stages {
+            stage('Prepare') { steps { sh 'echo prepare release ' + params.VERSION + '; sleep 2' } }
+            stage('Build') {
+              parallel {
+                stage('api') { steps { sh 'echo build api; sleep 4' } }
+                stage('web') { steps { sh 'echo build web; sleep 3' } }
+                stage('worker') { steps { sh 'echo build worker; sleep 5' } }
+              }
+            }
+            stage('Tag') { steps { sh 'echo tag v' + params.VERSION } }
+          }
+        }
+  - kind: folder
+    name: payments
+    displayName: "Payments"
+    items:
+      - kind: folder
+        name: api
+        displayName: "API"
+        items:
+          - kind: pipeline
+            name: build
+            displayName: "Build"
+            properties:
+              - buildDiscarder:
+                  strategy:
+                    logRotator:
+                      numToKeep: 30
+            definition:
+              script: |
+                pipeline {
+                  agent { label 'smoke-b-default' }
+                  stages {
+                    stage('Checkout') { steps { sh 'echo checkout payments/api; sleep 1' } }
+                    stage('Compile') { steps { sh 'echo go build ./...; sleep 6' } }
+                    stage('Unit tests') { steps { sh 'echo go test ./...; sleep 4' } }
+                    stage('Package') { steps { sh 'echo docker build; sleep 3' } }
+                  }
+                }
+          - kind: pipeline
+            name: test
+            displayName: "Integration tests"
+            definition:
+              script: |
+                pipeline {
+                  agent { label 'smoke-b-default' }
+                  stages {
+                    stage('Postgres') { steps { sh 'echo start postgres; sleep 3' } }
+                    stage('Run') {
+                      steps {
+                        sh 'echo integration suite; sleep 5'
+                        script { if (env.BUILD_NUMBER.toInteger() % 3 == 0) { unstable('two flaky tests') } }
+                      }
+                    }
+                  }
+                }
+          - kind: pipeline
+            name: deploy
+            displayName: "Deploy"
+            parameters:
+              - choice:
+                  name: ENV
+                  choices:
+                    - staging
+                    - production
+              - booleanParam:
+                  name: DRY_RUN
+                  defaultValue: true
+            definition:
+              script: |
+                pipeline {
+                  agent { label 'smoke-b-default' }
+                  stages {
+                    stage('Plan') { steps { sh 'echo plan ' + params.ENV + ' dry_run=' + params.DRY_RUN + '; sleep 2' } }
+                    stage('Apply') {
+                      when { expression { !params.DRY_RUN } }
+                      steps { sh 'echo apply ' + params.ENV + '; sleep 4' }
+                    }
+                    stage('Smoke') { steps { sh 'echo curl /healthz; sleep 2' } }
+                  }
+                }
+      - kind: folder
+        name: web
+        displayName: "Web"
+        items:
+          - kind: pipeline
+            name: build
+            displayName: "Build"
+            definition:
+              script: |
+                pipeline {
+                  agent { label 'smoke-b-default' }
+                  stages {
+                    stage('Install') { steps { sh 'echo npm ci; sleep 4' } }
+                    stage('Lint') { steps { sh 'echo eslint; sleep 2' } }
+                    stage('Bundle') { steps { sh 'echo vite build; sleep 5' } }
+                  }
+                }
+          - kind: pipeline
+            name: e2e
+            displayName: "End-to-end"
+            definition:
+              script: |
+                pipeline {
+                  agent { label 'smoke-b-default' }
+                  stages {
+                    stage('Browser') { steps { sh 'echo playwright; sleep 4' } }
+                    stage('Verdict') {
+                      steps {
+                        script { if (env.BUILD_NUMBER.toInteger() % 2 == 0) { error('checkout flow timed out') } }
+                        sh 'echo all green'
+                      }
+                    }
+                  }
+                }
+  - kind: folder
+    name: platform
+    displayName: "Platform"
+    items:
+      - kind: pipeline
+        name: terraform-plan
+        displayName: "Terraform plan"
+        parameters:
+          - string:
+              name: WORKSPACE
+              defaultValue: core
+        definition:
+          script: |
+            pipeline {
+              agent { label 'smoke-b-default' }
+              stages {
+                stage('Init') { steps { sh 'echo terraform init ' + params.WORKSPACE + '; sleep 2' } }
+                stage('Plan') { steps { sh 'echo terraform plan; sleep 6' } }
+              }
+            }
+      - kind: pipeline
+        name: nightly-audit
+        displayName: "Nightly audit"
+        triggers:
+          - cron:
+              spec: "H 2 * * *"
+        definition:
+          script: |
+            pipeline {
+              agent { label 'smoke-b-default' }
+              stages {
+                stage('Scan') { steps { sh 'echo trivy fs .; sleep 5' } }
+                stage('Report') { steps { sh 'echo report; sleep 1' } }
+              }
+            }
+      - kind: pipeline
+        name: cert-rotate
+        displayName: "Certificate rotation"
+        definition:
+          script: |
+            pipeline {
+              agent { label 'smoke-b-default' }
+              stages {
+                stage('Rotate') { steps { sh 'echo rotate; sleep 3' } }
+              }
+            }
+  - kind: pipeline
+    name: mesh-flow
+    displayName: "Mesh probe: flow only"
+    definition:
+      script: |
+        for (int i = 1; i <= 24; i++) {
+          stage('s' + i) {
+            echo 'stage ' + i + ' start'
+            sleep 30
+            echo 'stage ' + i + ' end'
+          }
+        }
+        echo 'flow-done'
+  - kind: pipeline
+    name: mesh-agent
+    displayName: "Mesh probe: pod agent"
+    definition:
+      script: |
+        stage('prep') { echo 'prep'; sleep 5 }
+        node('smoke-b-default') {
+          stage('work') {
+            sh 'hostname'
+            for (int i = 1; i <= 20; i++) {
+              sh 'sleep 30'
+              echo 'tick ' + i
+            }
+            sh 'echo done-on-agent'
+          }
+        }
+        stage('after') { echo 'after-node' }
+  - kind: pipeline
+    name: mesh-perf
+    displayName: "Mesh probe: durability override"
+    definition:
+      script: |
+        properties([durabilityHint('PERFORMANCE_OPTIMIZED')])
+        for (int i = 1; i <= 24; i++) {
+          stage('p' + i) { sleep 30 }
+        }
+        echo 'perf-done'
