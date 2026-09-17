@@ -229,3 +229,79 @@ items:
           stage('p' + i) { sleep 30 }
         }
         echo 'perf-done'
+  - kind: pipeline
+    name: fwd-nowait
+    displayName: "C5 forward: build job without wait"
+    definition:
+      script: |
+        stage('fan') {
+          build job: 'rehydrate-1', wait: false
+          build job: 'release', wait: false
+          echo 'fwd-nowait-done'
+        }
+  - kind: pipeline
+    name: fwd-wait-h
+    displayName: "C5 refusal: waiting build of rehydrate-1"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'rehydrate-1', wait: true
+          echo 'fwd-wait-h-done'
+        }
+  - kind: pipeline
+    name: fwd-wait-r
+    displayName: "C5 refusal: waiting build of release"
+    definition:
+      script: |
+        stage('wait') {
+          build job: 'release', wait: true
+          echo 'fwd-wait-r-done'
+        }
+  - kind: pipeline
+    name: up-a
+    displayName: "C5 upstream producer a"
+    definition:
+      script: |
+        stage('a') { echo 'up-a-done' }
+  - kind: pipeline
+    name: up-b
+    displayName: "C5 native upstream consumer of up-a"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          triggers { upstream(upstreamProjects: 'up-a', threshold: hudson.model.Result.SUCCESS) }
+          stages { stage('b') { steps { echo 'up-b-done' } } }
+        }
+  - kind: pipeline
+    name: up-c
+    displayName: "C5 upstream producer c"
+    definition:
+      script: |
+        stage('c') { echo 'up-c-done' }
+  - kind: pipeline
+    name: up-d
+    displayName: "C5 native upstream consumer of up-c"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          triggers { upstream(upstreamProjects: 'up-c', threshold: hudson.model.Result.SUCCESS) }
+          stages { stage('d') { steps { echo 'up-d-done' } } }
+        }
+  - kind: pipeline
+    name: up-e
+    displayName: "C5 upstream producer e"
+    definition:
+      script: |
+        stage('e') { echo 'up-e-done' }
+  - kind: pipeline
+    name: up-f
+    displayName: "C5 native upstream consumer of up-e"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          triggers { upstream(upstreamProjects: 'up-e', threshold: hudson.model.Result.SUCCESS) }
+          stages { stage('f') { steps { echo 'up-f-done' } } }
+        }
