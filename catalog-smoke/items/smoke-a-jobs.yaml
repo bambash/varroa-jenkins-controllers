@@ -17,6 +17,13 @@ items:
         pipeline { agent { label 'smoke-a-default' }
           stages { stage('Run') { steps { echo 'fast probe' } } } }
   - kind: pipeline
+    name: slow-probe
+    displayName: "Slow probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages { stage('Sleep') { steps { sh 'echo slow probe; sleep 100' } } } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
