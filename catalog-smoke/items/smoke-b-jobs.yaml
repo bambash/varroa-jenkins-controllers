@@ -7,6 +7,13 @@ items:
         pipeline { agent { label 'smoke-b-default' }
           stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret; printenv S | wc -c' } } } } }
   - kind: pipeline
+    name: slow-probe
+    displayName: "Slow probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-b-default' }
+          stages { stage('Sleep') { steps { sh 'echo slow probe; sleep 300' } } } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
