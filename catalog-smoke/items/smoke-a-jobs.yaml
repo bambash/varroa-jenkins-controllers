@@ -281,17 +281,15 @@ items:
         name: probe-node
         displayName: "Source probe (checkout on the agent)"
         definition:
-          cpsFlowDefinition:
-            sandbox: true
-            script: |
-              pipeline {
-                agent { label 'smoke-a-default' }
-                stages {
-                  stage('Checkout') {
-                    steps {
-                      git url: 'https://github.com/bambash/varroa-jenkins-controllers.git', branch: 'smoke-cells'
-                      sh 'echo source probe on the agent; sleep 45'
-                    }
+          script: |
+            pipeline {
+              agent { label 'smoke-a-default' }
+              stages {
+                stage('Checkout') {
+                  steps {
+                    git url: 'https://github.com/bambash/varroa-jenkins-controllers.git', branch: 'smoke-cells'
+                    sh 'echo source probe on the agent; sleep 45'
                   }
                 }
               }
+            }
