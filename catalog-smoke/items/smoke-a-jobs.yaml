@@ -276,4 +276,4 @@ items:
                       url: https://github.com/bambash/varroa-jenkins-controllers.git
                 branches:
                   - branchSpec:
-                      name: "*/main"
+                      name: "*/smoke-cells"

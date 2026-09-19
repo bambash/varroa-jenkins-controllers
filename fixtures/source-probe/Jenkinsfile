@@ -1,4 +1,4 @@
-@Library('smoke-lib@main') _
+@Library('smoke-lib@smoke-cells') _
 pipeline {
   agent { label 'smoke-a-default' }
   stages {
