@@ -2,6 +2,6 @@
 pipeline {
   agent { label 'smoke-a-default' }
   stages {
-    stage('Hello') { steps { checkout scm; smokeHello(); sh 'echo source probe; sleep 5' } }
+    stage('Hello') { steps { checkout scm; smokeHello(); sh 'echo source probe; sleep 45' } }
   }
 }
