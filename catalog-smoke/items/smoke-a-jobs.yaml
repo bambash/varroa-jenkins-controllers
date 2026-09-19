@@ -246,3 +246,34 @@ items:
           stage('p' + i) { sleep 30 }
         }
         echo 'perf-done'
+  - kind: folder
+    name: source
+    displayName: "Source probe"
+    properties:
+      - folderLibraries:
+          libraries:
+            - libraryConfiguration:
+                name: smoke-lib
+                allowVersionOverride: true
+                retriever:
+                  modernSCM:
+                    scm:
+                      github:
+                        repoOwner: bambash
+                        repository: varroa-jenkins-controllers
+    items:
+      - kind: pipeline
+        name: probe
+        displayName: "Source probe"
+        definition:
+          cpsScmFlowDefinition:
+            scriptPath: fixtures/source-probe/Jenkinsfile
+            lightweight: false
+            scm:
+              gitSCM:
+                userRemoteConfigs:
+                  - userRemoteConfig:
+                      url: https://github.com/bambash/varroa-jenkins-controllers.git
+                branches:
+                  - branchSpec:
+                      name: "*/main"

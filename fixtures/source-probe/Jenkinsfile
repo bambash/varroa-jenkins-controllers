@@ -1,0 +1,7 @@
+@Library('smoke-lib@main') _
+pipeline {
+  agent { label 'smoke-a-default' }
+  stages {
+    stage('Hello') { steps { smokeHello(); sh 'echo source probe; sleep 5' } }
+  }
+}
