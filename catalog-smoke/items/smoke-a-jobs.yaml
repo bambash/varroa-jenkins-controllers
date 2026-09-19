@@ -268,7 +268,7 @@ items:
         definition:
           cpsScmFlowDefinition:
             scriptPath: fixtures/source-probe/Jenkinsfile
-            lightweight: false
+            lightweight: true
             scm:
               gitSCM:
                 userRemoteConfigs:
