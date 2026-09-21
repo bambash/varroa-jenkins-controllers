@@ -24,6 +24,15 @@ items:
         pipeline { agent { label 'smoke-a-default' }
           stages { stage('Sleep') { steps { sh 'echo slow probe; sleep 100' } } } }
   - kind: pipeline
+    name: lock-hold
+    displayName: "Lock hold"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages { stage('Lock') { steps { script {
+            varroa.lock(name: 'smoke-lock', timeout: 600) { sh 'echo holding smoke-lock; sleep 150' }
+          } } } } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
