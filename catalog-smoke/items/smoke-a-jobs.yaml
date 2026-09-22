@@ -33,6 +33,16 @@ items:
             varroa.lock(name: 'smoke-lock', timeout: 600) { sh 'echo holding smoke-lock; sleep 150' }
           } } } } }
   - kind: pipeline
+    name: digest-probe
+    displayName: "Digest probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages {
+            stage('Note') { steps { script { varroa.summary('canary at 10%, holding for the gate') } } }
+            stage('Deploy') { steps { sh 'echo deploying canary; echo gate refused the canary; exit 1' } }
+          } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
