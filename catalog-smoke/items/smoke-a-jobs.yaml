@@ -43,6 +43,31 @@ items:
             stage('Deploy') { steps { sh 'echo deploying canary; echo gate refused the canary; exit 1' } }
           } }
   - kind: pipeline
+    name: input-probe
+    displayName: "Input probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages {
+            stage('Gate') { steps { script {
+              def env = input message: 'Deploy?', ok: 'Ship it', submitter: 'bambash',
+                parameters: [choice(name: 'ENV', choices: ['staging', 'prod'])]
+              echo "ENV=" + env
+            } } }
+            stage('Deploy') { steps { sh 'echo deploying' } }
+          } }
+  - kind: pipeline
+    name: input-refuse
+    displayName: "Input refuse probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages {
+            stage('Gate') { steps { script {
+              input message: 'Only release managers may answer', ok: 'Approve', submitter: 'varroa-release-managers'
+            } } }
+          } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
