@@ -91,6 +91,15 @@ items:
             } } }
           } }
   - kind: pipeline
+    name: template-probe
+    displayName: "Template probe"
+    definition:
+      varroaTemplate:
+        template: go-service
+        templateVersion: "2.1"
+        values:
+          greeting: "probe"
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
