@@ -68,6 +68,29 @@ items:
             } } }
           } }
   - kind: pipeline
+    name: junit-probe
+    displayName: "JUnit probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-a-default' }
+          stages {
+            stage('Test') { steps { script {
+              writeFile file: 'results.xml', text: '''<?xml version="1.0" encoding="UTF-8"?>
+        <testsuite name="smoke.junit" tests="3" failures="1" skipped="1">
+          <testcase classname="com.example.SmokeTest" name="passes" time="0.25"/>
+          <testcase classname="com.example.SmokeTest" name="fails" time="1.25">
+            <failure message="expected 1 but was 2">java.lang.AssertionError: expected 1 but was 2
+            at com.example.SmokeTest.fails(SmokeTest.java:12)</failure>
+          </testcase>
+          <testcase classname="com.example.SmokeTest" name="skips" time="0.0">
+            <skipped message="not on this platform"/>
+          </testcase>
+        </testsuite>
+        '''
+              junit 'results.xml'
+            } } }
+          } }
+  - kind: pipeline
     name: rehydrate-1
     displayName: "Rehydrate probe"
     parameters:
