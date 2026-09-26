@@ -371,22 +371,25 @@ items:
             }
   - kind: pipeline
     name: cron-probe
-    displayName: "Cron probe (declarative trigger, every 2 minutes)"
+    displayName: "Cron probe (items trigger, every 2 minutes)"
+    triggers:
+      - cron:
+          spec: "*/2 * * * *"
     definition:
       script: |
         pipeline {
           agent none
-          triggers { cron('*/2 * * * *') }
           stages { stage('Tick') { steps { echo 'cron tick' } } }
         }
   - kind: pipeline
     name: webhook-probe
-    displayName: "Webhook probe (githubPush on bambash/varroa-jenkins-controllers)"
+    displayName: "Webhook probe (items githubPush on bambash/varroa-jenkins-controllers)"
+    triggers:
+      - githubPush: {}
     definition:
       script: |
         pipeline {
           agent { label 'smoke-a-default' }
-          triggers { githubPush() }
           stages { stage('Checkout') { steps {
             git url: 'https://github.com/bambash/varroa-jenkins-controllers.git', branch: 'smoke-cells'
             sh 'git log -1 --oneline'
