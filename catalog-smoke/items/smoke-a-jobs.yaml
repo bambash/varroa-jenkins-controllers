@@ -381,14 +381,14 @@ items:
         }
   - kind: pipeline
     name: webhook-probe
-    displayName: "Webhook probe (githubPush on VarroaCI/varroa-jenkins)"
+    displayName: "Webhook probe (githubPush on bambash/varroa-jenkins-controllers)"
     definition:
       script: |
         pipeline {
           agent { label 'smoke-a-default' }
           triggers { githubPush() }
           stages { stage('Checkout') { steps {
-            git url: 'https://github.com/VarroaCI/varroa-jenkins.git', branch: 'main'
+            git url: 'https://github.com/bambash/varroa-jenkins-controllers.git', branch: 'smoke-cells'
             sh 'git log -1 --oneline'
           } } }
         }
