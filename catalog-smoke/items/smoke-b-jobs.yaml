@@ -380,10 +380,12 @@ items:
       script: |
         stage('fire') {
           def run = varroa.build(tenant: 'smoke-a', job: 'release', wait: false)
-          echo "xt-nowait state=" + run.state
-          sleep 20
-          run.refresh()
-          echo "xt-nowait refreshed state=" + run.state + " #" + run.buildNumber
+          echo "xt-nowait state=" + run.state + " runId=" + run.runId + " intentKey=" + run.intentKey
+          for (int i = 1; i <= 6; i++) {
+            sleep 10
+            run = run.refresh()
+            echo "xt-nowait refresh " + i + " state=" + run.state + " #" + run.buildNumber + " result=" + run.result + " runId=" + run.runId
+          }
         }
   - kind: pipeline
     name: xt-denied
