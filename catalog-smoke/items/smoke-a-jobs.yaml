@@ -369,3 +369,26 @@ items:
                 }
               }
             }
+  - kind: pipeline
+    name: cron-probe
+    displayName: "Cron probe (declarative trigger, every 2 minutes)"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          triggers { cron('*/2 * * * *') }
+          stages { stage('Tick') { steps { echo 'cron tick' } } }
+        }
+  - kind: pipeline
+    name: webhook-probe
+    displayName: "Webhook probe (githubPush on VarroaCI/varroa-jenkins)"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'smoke-a-default' }
+          triggers { githubPush() }
+          stages { stage('Checkout') { steps {
+            git url: 'https://github.com/VarroaCI/varroa-jenkins.git', branch: 'main'
+            sh 'git log -1 --oneline'
+          } } }
+        }

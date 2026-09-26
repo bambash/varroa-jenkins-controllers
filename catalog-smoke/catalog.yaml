@@ -12,11 +12,11 @@ items:
     name: smoke-a-jobs
     displayName: "Smoke tenant jobs"
     path: items/smoke-a-jobs.yaml
-    version: "1.6.8"
+    version: "1.6.9"
     tags: [smoke]
   - type: item
     name: smoke-b-jobs
     displayName: "Smoke tenant jobs (smoke-b)"
     path: items/smoke-b-jobs.yaml
-    version: "1.3.0"
+    version: "1.4.0"
     tags: [smoke]

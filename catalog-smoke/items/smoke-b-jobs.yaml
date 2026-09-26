@@ -348,3 +348,59 @@ items:
           build job: 'rehydrate-1', wait: true
           echo 'fwd-wait-d-done'
         }
+  - kind: pipeline
+    name: xt-build
+    displayName: "Cross-tenant: build, lastSuccessful, copyArtifact, lock"
+    definition:
+      script: |
+        stage('build') {
+          def run = varroa.build(tenant: 'smoke-a', job: 'release', params: [VERSION: '9.9.9'])
+          echo "xt-build started " + run.tenant + "/" + run.job + " #" + run.buildNumber + " state=" + run.state + " result=" + run.result
+        }
+        stage('last') {
+          def last = varroa.lastSuccessful(tenant: 'varroaci', job: 'varroa-ci')
+          if (last == null) { error('no successful varroa-ci run') }
+          echo "xt-last varroaci/varroa-ci #" + last.buildNumber + " result=" + last.result + " artifacts=" + last.artifacts
+          node('smoke-b-default') {
+            def p = last.copyArtifact(path: 'frontend/dist/index.html', target: 'copied/index.html')
+            echo "xt-copied " + p
+            sh 'wc -c copied/index.html'
+          }
+        }
+        stage('lock') {
+          varroa.lock(name: 'smoke-lock', tenant: 'smoke-a', timeout: 120) {
+            echo "xt-lock held name=" + varroa.lock.name + " tenant=" + varroa.lock.tenant + " token=" + varroa.lock.token
+          }
+        }
+        echo 'xt-build-done'
+  - kind: pipeline
+    name: xt-nowait
+    displayName: "Cross-tenant: build without wait, then refresh"
+    definition:
+      script: |
+        stage('fire') {
+          def run = varroa.build(tenant: 'smoke-a', job: 'release', wait: false)
+          echo "xt-nowait state=" + run.state
+          sleep 20
+          run.refresh()
+          echo "xt-nowait refreshed state=" + run.state + " #" + run.buildNumber
+        }
+  - kind: pipeline
+    name: xt-denied
+    displayName: "Cross-tenant: call a job smoke-a does not export"
+    definition:
+      script: |
+        stage('denied') {
+          varroa.build(tenant: 'smoke-a', job: 'slow-probe', wait: false)
+          echo 'xt-denied-unexpected-success'
+        }
+  - kind: pipeline
+    name: xt-downstream
+    displayName: "Cross-tenant: varroaUpstream consumer of smoke-a/release"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          triggers { varroaUpstream(tenant: 'smoke-a', job: 'release', result: 'SUCCESS') }
+          stages { stage('d') { steps { echo 'xt-downstream-done' } } }
+        }
