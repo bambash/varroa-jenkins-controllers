@@ -410,11 +410,47 @@ items:
         }
   - kind: pipeline
     name: xt-downstream
-    displayName: "Cross-tenant: varroaUpstream consumer of smoke-a/release"
+    displayName: "Cross-tenant: varroaUpstream consumer of smoke-a/release (home slot 0)"
+    triggers:
+      - varroaUpstream:
+          tenant: smoke-a
+          job: release
+          result: SUCCESS
     definition:
       script: |
         pipeline {
           agent none
-          triggers { varroaUpstream(tenant: 'smoke-a', job: 'release', result: 'SUCCESS') }
           stages { stage('d') { steps { echo 'xt-downstream-done' } } }
+        }
+  - kind: pipeline
+    name: xt-downstream-s1
+    displayName: "Cross-tenant: varroaUpstream consumer of smoke-a/release (home slot 1)"
+    triggers:
+      - varroaUpstream:
+          tenant: smoke-a
+          job: release
+          result: SUCCESS
+    definition:
+      script: |
+        pipeline {
+          agent none
+          stages { stage('d') { steps { echo 'xt-downstream-s1-done' } } }
+        }
+  - kind: pipeline
+    name: fwd-777-a
+    displayName: "Forward probe (home slot 1)"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          stages { stage('a') { steps { echo 'fwd-777-a-done' } } }
+        }
+  - kind: pipeline
+    name: fwd-777-c
+    displayName: "Forward probe (home slot 0)"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          stages { stage('c') { steps { echo 'fwd-777-c-done' } } }
         }
