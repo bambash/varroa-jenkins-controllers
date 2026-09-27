@@ -349,6 +349,18 @@ items:
           echo 'fwd-wait-d-done'
         }
   - kind: pipeline
+    name: xt-missing-artifact
+    displayName: "Cross-tenant: copyArtifact of a missing path"
+    definition:
+      script: |
+        stage('missing') {
+          def last = varroa.lastSuccessful(tenant: 'varroaci', job: 'varroa-ci')
+          if (last == null) { error('no successful varroa-ci run') }
+          node('smoke-b-default') {
+            last.copyArtifact(path: 'does/not/exist', target: 'copied/missing')
+          }
+        }
+  - kind: pipeline
     name: xt-build
     displayName: "Cross-tenant: build, lastSuccessful, copyArtifact, lock"
     definition:
