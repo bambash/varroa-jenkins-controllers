@@ -382,6 +382,23 @@ items:
           stages { stage('Tick') { steps { echo 'cron tick' } } }
         }
   - kind: pipeline
+    name: parallel-fail
+    displayName: "Parallel probe (Bravo fails with a colour line)"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          stages {
+            stage('Fan') {
+              parallel {
+                stage('Alpha') { agent { label 'smoke-a-default' }; steps { sh 'for i in $(seq 1 80); do echo alpha-$i; done' } }
+                stage('Bravo') { agent { label 'smoke-a-default' }; steps { sh 'for i in $(seq 1 60); do echo bravo-$i; done; printf "\033[31mred\033[0m\n"; exit 3' } }
+                stage('Charlie') { agent { label 'smoke-a-default' }; steps { sh 'for i in $(seq 1 80); do echo charlie-$i; sleep 0.05; done' } }
+              }
+            }
+          }
+        }
+  - kind: pipeline
     name: webhook-probe
     displayName: "Webhook probe (items githubPush on bambash/varroa-jenkins-controllers)"
     triggers:
