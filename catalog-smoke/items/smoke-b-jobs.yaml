@@ -446,6 +446,15 @@ items:
           stages { stage('a') { steps { echo 'fwd-777-a-done' } } }
         }
   - kind: pipeline
+    name: fwd-777-e
+    displayName: "Forward probe, new job (home slot 1)"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          stages { stage('e') { steps { echo 'fwd-777-e-done' } } }
+        }
+  - kind: pipeline
     name: fwd-777-c
     displayName: "Forward probe (home slot 0)"
     definition:
