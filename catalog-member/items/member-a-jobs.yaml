@@ -1,0 +1,29 @@
+items:
+  - kind: pipeline
+    name: build
+    displayName: "Build"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'member-a-default' }
+          stages {
+            stage('Build') { steps { sh 'echo member-a build on $(hostname); mkdir -p out; echo member-a-artifact > out/result.txt; sleep 5' } }
+            stage('Archive') { steps { archiveArtifacts artifacts: 'out/result.txt' } }
+          }
+        }
+  - kind: pipeline
+    name: release
+    displayName: "Release"
+    parameters:
+      - string:
+          name: VERSION
+          defaultValue: "1.0.0"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'member-a-default' }
+          stages {
+            stage('Prepare') { steps { sh 'echo member-a release ' + params.VERSION + '; sleep 2' } }
+            stage('Tag') { steps { sh 'echo tag v' + params.VERSION } }
+          }
+        }

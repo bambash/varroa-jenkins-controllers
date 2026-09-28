@@ -1,0 +1,10 @@
+apiVersion: "1"
+name: member-template-catalog
+description: "Throwaway catalog for the member-cluster pipelines tenant smoke."
+items:
+  - type: item
+    name: member-a-jobs
+    displayName: "Member tenant jobs (member-a)"
+    path: items/member-a-jobs.yaml
+    version: "1.0.0"
+    tags: [smoke]
