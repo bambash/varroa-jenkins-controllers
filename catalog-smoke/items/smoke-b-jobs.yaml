@@ -468,24 +468,52 @@ items:
     displayName: "Build state: stash within a run"
     definition:
       script: |
-        pipeline { agent none
+        pipeline {
+          agent none
           stages {
-            stage('one') { agent { label 'smoke-b-default' } steps { writeFile file: 'x.txt', text: 'hi'; stash name: 's', includes: 'x.txt' } }
-            stage('two') { agent { label 'smoke-b-default' } steps { unstash 's'; sh 'cat x.txt' } } } }
+            stage('one') {
+              agent { label 'smoke-b-default' }
+              steps {
+                writeFile file: 'x.txt', text: 'hi'
+                stash name: 's', includes: 'x.txt'
+              }
+            }
+            stage('two') {
+              agent { label 'smoke-b-default' }
+              steps {
+                unstash 's'
+                sh 'cat x.txt'
+              }
+            }
+          }
+        }
   - kind: pipeline
     name: bs-stash-b
     displayName: "Build state: stash across a resume"
     definition:
       script: |
-        pipeline { agent none
+        pipeline {
+          agent none
           stages {
-            stage('one') { agent { label 'smoke-b-default' } steps { writeFile file: 'x.txt', text: 'hi'; stash name: 's', includes: 'x.txt' } }
-            stage('two') { agent { label 'smoke-b-default' } steps {
-              writeFile file: 'w.txt', text: 'w'
-              sh 'echo sleeping; sleep 240'
-              sh 'echo workspace:; cat w.txt'
-              unstash 's'
-              sh 'echo stash:; cat x.txt' } } } }
+            stage('one') {
+              agent { label 'smoke-b-default' }
+              steps {
+                writeFile file: 'x.txt', text: 'hi'
+                stash name: 's', includes: 'x.txt'
+              }
+            }
+            stage('two') {
+              agent { label 'smoke-b-default' }
+              steps {
+                writeFile file: 'w.txt', text: 'w'
+                sh 'echo sleeping; sleep 240'
+                sh 'echo workspace:; cat w.txt'
+                unstash 's'
+                sh 'echo stash:; cat x.txt'
+              }
+            }
+          }
+        }
   - kind: pipeline
     name: bs-ws-a
     displayName: "Build state: workspace between builds"
@@ -497,11 +525,26 @@ items:
     displayName: "Build state: preserved stash restart"
     definition:
       script: |
-        pipeline { agent none
+        pipeline {
+          agent none
           options { preserveStashes(buildCount: 2) }
           stages {
-            stage('one') { agent { label 'smoke-b-default' } steps { writeFile file: 'x.txt', text: 'hi'; stash name: 's', includes: 'x.txt' } }
-            stage('two') { agent { label 'smoke-b-default' } steps { unstash 's'; sh 'cat x.txt' } } } }
+            stage('one') {
+              agent { label 'smoke-b-default' }
+              steps {
+                writeFile file: 'x.txt', text: 'hi'
+                stash name: 's', includes: 'x.txt'
+              }
+            }
+            stage('two') {
+              agent { label 'smoke-b-default' }
+              steps {
+                unstash 's'
+                sh 'cat x.txt'
+              }
+            }
+          }
+        }
   - kind: pipeline
     name: bs-prod
     displayName: "Build state: artifact producer"
