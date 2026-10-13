@@ -1,5 +1,21 @@
 items:
   - kind: pipeline
+    name: queue-wait-probe
+    displayName: "Queue wait probe"
+    definition:
+      script: |
+        pipeline {
+          agent none
+          options { disableConcurrentBuilds() }
+          stages {
+            stage('Wait') {
+              steps {
+                sleep time: 60, unit: 'SECONDS'
+              }
+            }
+          }
+        }
+  - kind: pipeline
     name: agent-probe
     displayName: "Agent probe"
     definition:
