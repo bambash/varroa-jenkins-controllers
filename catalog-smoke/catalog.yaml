@@ -18,7 +18,7 @@ items:
     name: smoke-a-jobs
     displayName: "Smoke tenant jobs"
     path: items/smoke-a-jobs.yaml
-    version: "1.6.13"
+    version: "1.6.14"
     tags: [smoke]
   - type: item
     name: smoke-b-jobs
