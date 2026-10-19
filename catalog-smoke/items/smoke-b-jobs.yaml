@@ -1,5 +1,19 @@
 items:
   - kind: pipeline
+    name: idle-probe
+    displayName: "Idle pod probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-b-idle' }
+          stages { stage('Idle') { steps { sh 'echo idle probe; sleep 5' } } } }
+  - kind: pipeline
+    name: busy-probe
+    displayName: "Busy pod probe"
+    definition:
+      script: |
+        pipeline { agent { label 'smoke-b-idle' }
+          stages { stage('Busy') { steps { sh 'echo busy probe; sleep 600' } } } }
+  - kind: pipeline
     name: wave1-apply-probe
     displayName: "Wave 1 apply probe"
     definition:

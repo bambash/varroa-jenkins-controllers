@@ -2,6 +2,12 @@ apiVersion: "1"
 name: smoke-template-catalog
 description: "Throwaway catalog for the jenkins-cells epic live smoke."
 items:
+  - type: podtemplate
+    name: smoke-idle-pod
+    displayName: "Idle pod template (smoke)"
+    path: items/smoke-idle-pod.yaml
+    version: "1.0.0"
+    tags: [smoke]
   - type: pipeline-template
     name: go-service
     displayName: "Go service (smoke)"
@@ -18,5 +24,5 @@ items:
     name: smoke-b-jobs
     displayName: "Smoke tenant jobs (smoke-b)"
     path: items/smoke-b-jobs.yaml
-    version: "1.4.9"
+    version: "1.4.10"
     tags: [smoke]

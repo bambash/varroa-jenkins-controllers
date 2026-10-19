@@ -1,0 +1,11 @@
+- name: idle
+  label: idle
+  idleMinutes: 5
+  podRetention: never
+  containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:3384.v60d89463d9e0-1-jdk21
+      resourceRequestCpu: "100m"
+      resourceRequestMemory: 256Mi
+      resourceLimitCpu: "1"
+      resourceLimitMemory: 512Mi
