@@ -1,5 +1,11 @@
 items:
   - kind: pipeline
+    name: wave1-apply-probe
+    displayName: "Wave 1 apply probe"
+    definition:
+      script: |
+        echo 'wave1 apply probe'
+  - kind: pipeline
     name: queue-wait-probe
     displayName: "Queue wait probe"
     definition:
