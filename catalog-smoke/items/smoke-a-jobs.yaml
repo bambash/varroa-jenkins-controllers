@@ -1,5 +1,11 @@
 items:
   - kind: pipeline
+    name: "refused?name"
+    displayName: "Refused item probe"
+    definition:
+      script: |
+        echo 'never created'
+  - kind: pipeline
     name: agent-probe
     displayName: "Agent probe"
     definition:
