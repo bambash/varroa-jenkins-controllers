@@ -7,6 +7,38 @@ items:
         pipeline { agent { label 'smoke-a-default' }
           stages { stage('Cred') { steps { withCredentials([string(credentialsId: 'smoke-a-secret', variable: 'S')]) { sh 'echo have secret; printenv S | wc -c' } } } } }
   - kind: pipeline
+    name: utility-probe
+    displayName: "Utility probe (timestamps, utility steps, ssh-agent, cleanWs)"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'smoke-a-default' }
+          options { timestamps() }
+          stages {
+            stage('JSON') { steps { script {
+              writeJSON file: 'probe.json', json: [name: 'utility-probe', count: 3]
+              def j = readJSON file: 'probe.json'
+              echo "json name=" + j.name + " count=" + j.count
+              writeYaml file: 'probe.yaml', data: [kind: 'probe', items: ['a', 'b']]
+              def y = readYaml file: 'probe.yaml'
+              echo "yaml kind=" + y.kind + " items=" + y.items.size()
+            } } }
+            stage('Files') { steps { script {
+              sh 'mkdir -p out && for i in 1 2 3; do echo line-$i > out/f$i.txt; done'
+              def files = findFiles(glob: 'out/*.txt')
+              echo "found=" + files.length
+              zip zipFile: 'out.zip', dir: 'out', archive: false
+              unzip zipFile: 'out.zip', dir: 'back'
+              sh 'ls back; test -f back/f2.txt; sha1sum out.zip'
+              echo "sha1=" + sha1(file: 'out.zip')
+            } } }
+            stage('SSH agent') { steps {
+              sshagent(credentials: ['smoke-a-utility-ssh']) { sh 'ssh-add -l' }
+            } }
+          }
+          post { always { cleanWs(); sh 'ls -A | wc -l' } }
+        }
+  - kind: pipeline
     name: fast-probe
     displayName: "Fast probe"
     properties:
