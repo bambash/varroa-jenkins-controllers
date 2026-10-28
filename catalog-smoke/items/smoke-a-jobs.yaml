@@ -39,6 +39,55 @@ items:
           post { always { cleanWs(); sh 'ls -A | wc -l' } }
         }
   - kind: pipeline
+    name: quality-probe
+    displayName: "Quality probe (recordCoverage, recordIssues)"
+    definition:
+      script: |
+        pipeline {
+          agent { label 'smoke-a-default' }
+          stages {
+            stage('Reports') { steps { script {
+              // An odd build covers 4 of 5 lines and reports 3 warnings. An even build covers 3 of 5 lines and reports 2 warnings.
+              def odd = (env.BUILD_NUMBER.toInteger() % 2) == 1
+              def lc = odd ? 4 : 3
+              def lm = 5 - lc
+              def ic = lc * 2
+              def im = 10 - ic
+              def counters = '<counter type="INSTRUCTION" missed="' + im + '" covered="' + ic + '"/>' +
+                '<counter type="BRANCH" missed="1" covered="3"/>' +
+                '<counter type="LINE" missed="' + lm + '" covered="' + lc + '"/>' +
+                '<counter type="METHOD" missed="0" covered="1"/>'
+              def lines = ''
+              for (int n = 3; n <= 7; n++) {
+                def hit = (n - 2) <= lc
+                lines += '<line nr="' + n + '" mi="' + (hit ? 0 : 2) + '" ci="' + (hit ? 2 : 0) + '" mb="' + (n == 4 ? 1 : 0) + '" cb="' + (n == 4 ? 3 : 0) + '"/>'
+              }
+              writeFile file: 'target/site/jacoco/jacoco.xml', text:
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<report name="quality-probe"><sessioninfo id="probe" start="1700000000000" dump="1700000001000"/>' +
+                '<package name="com/example"><class name="com/example/Calc" sourcefilename="Calc.java">' +
+                '<method name="add" desc="(II)I" line="3">' + counters + '</method>' + counters +
+                '<counter type="CLASS" missed="0" covered="1"/></class>' +
+                '<sourcefile name="Calc.java">' + lines + counters + '<counter type="CLASS" missed="0" covered="1"/></sourcefile>' +
+                counters + '<counter type="CLASS" missed="0" covered="1"/></package>' +
+                counters + '<counter type="CLASS" missed="0" covered="1"/></report>'
+              def errors = '<error line="3" column="5" severity="error" message="Missing a Javadoc comment." source="com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck"/>' +
+                '<error line="4" column="1" severity="warning" message="Line is longer than 100 characters." source="com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck"/>'
+              if (odd) {
+                errors += '<error line="5" column="9" severity="info" message="Operator is not followed by whitespace." source="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck"/>'
+              }
+              writeFile file: 'target/checkstyle-result.xml', text:
+                '<?xml version="1.0" encoding="UTF-8"?><checkstyle version="10.12.0">' +
+                '<file name="src/main/java/com/example/Calc.java">' + errors + '</file></checkstyle>'
+              recordCoverage(tools: [[parser: 'JACOCO', pattern: 'target/site/jacoco/jacoco.xml']], id: 'jacoco', name: 'Coverage',
+                qualityGates: [[threshold: 50.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE']])
+              recordIssues(tools: [checkStyle(pattern: 'target/checkstyle-result.xml')],
+                qualityGates: [[threshold: 1, type: 'TOTAL', criticality: 'NOTE']])
+            } } }
+          }
+          post { always { cleanWs() } }
+        }
+  - kind: pipeline
     name: fast-probe
     displayName: "Fast probe"
     properties:
